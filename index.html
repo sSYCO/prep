@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PrepHub – Log in or create account</title>
+<style>
+:root{
+  --ink:#0e2340;        /* deep navy: brand panel, headings */
+  --ink-2:#17335c;
+  --blue:#2456d6;       /* actions */
+  --blue-d:#1b44b0;
+  --gold:#e0a82e;       /* one accent: highlights only */
+  --bg:#eef2f8;
+  --card:#ffffff;
+  --text:#101a2c;
+  --muted:#5b6b82;
+  --line:#d9e1ee;
+  --field:#f7f9fd;
+  --ok:#15803d; --ok-bg:#dcfce7;
+  --bad:#c62828;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --urdu:"Noto Naskh Arabic","Segoe UI",Tahoma,serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#08111f;--card:#0f1b30;--text:#e8eef9;--muted:#93a4bd;--line:#22344f;--field:#0b1526;--blue:#4a78f0;--blue-d:#6b92f5;--ok-bg:#12351f;--bad:#ff7b7b}
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+.shell{min-height:100%;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+
+/* ---------- brand panel ---------- */
+.brand{background:var(--ink);color:#fff;padding:48px clamp(28px,5vw,72px);display:flex;flex-direction:column;justify-content:center;gap:32px}
+.logo{font-family:var(--serif);font-size:1.5rem;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+.logo i{width:12px;height:12px;border-radius:50%;background:var(--gold);display:inline-block}
+.brand h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.9rem,3.4vw,2.9rem);line-height:1.15;margin:0;max-width:16ch}
+.brand p{margin:0;color:#b9c8e2;max-width:42ch}
+
+/* sample MCQ: the one memorable element */
+.mcq{background:#fff;color:#101a2c;border-radius:14px;padding:18px 18px 12px;max-width:420px;border-top:4px solid var(--gold);box-shadow:0 18px 40px rgba(0,0,0,.28)}
+.mcq b{display:block;font-size:1rem}
+.mcq .ur{direction:rtl;text-align:right;font-family:var(--urdu);font-size:1.15rem;margin:6px 0 10px;color:#1c2b45}
+.mcq ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.mcq li{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:#f1f5fb;font-size:.95rem}
+.mcq li span{font-weight:700;color:#54657f;width:1.2em}
+.mcq li.right{background:#dcfce7;color:#14532d;font-weight:600}
+.mcq li.right span{color:#15803d}
+
+/* ---------- form side ---------- */
+.side{display:flex;align-items:center;justify-content:center;padding:32px 20px}
+.card{width:100%;max-width:430px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px}
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:24px}
+.tabs button{position:relative;z-index:1;border:0;background:none;padding:10px;font:600 .95rem var(--sans);color:var(--muted);cursor:pointer;border-radius:9px}
+.tabs button[aria-selected="true"]{color:#fff}
+.pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:var(--ink-2);border-radius:9px;transition:transform .25s ease}
+[data-mode="signup"] .pill{transform:translateX(100%)}
+@media (prefers-color-scheme:dark){.pill{background:var(--blue)}}
+
+h2{font-family:var(--serif);font-size:1.6rem;line-height:1.2;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px;font-size:.95rem}
+.panel[hidden]{display:none}
+.field{margin-bottom:14px}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px}
+.inp{position:relative}
+input[type=text],input[type=email],input[type=password]{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--field);color:var(--text);font:inherit;font-size:1rem;transition:border-color .15s,box-shadow .15s}
+input:focus-visible{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(36,86,214,.22)}
+input[aria-invalid="true"]{border-color:var(--bad)}
+.inp input{padding-right:64px}
+.toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--blue);font:600 .82rem var(--sans);padding:8px;cursor:pointer;border-radius:8px}
+.toggle:focus-visible,.link:focus-visible,button.primary:focus-visible,.tabs button:focus-visible,.ghost:focus-visible{outline:3px solid rgba(36,86,214,.4);outline-offset:2px}
+.err{display:block;color:var(--bad);font-size:.8rem;min-height:1.1em;margin-top:4px}
+.meter{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;width:0;background:var(--bad);transition:width .2s,background .2s}
+.hint{font-size:.78rem;color:var(--muted);margin-top:4px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 18px;font-size:.88rem}
+.row label{display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:0}
+.row input[type=checkbox]{margin-top:3px;accent-color:var(--blue)}
+.link{color:var(--blue);text-decoration:none;font-weight:600;background:none;border:0;padding:0;font:inherit;font-weight:600;cursor:pointer}
+.link:hover{text-decoration:underline}
+button.primary{width:100%;padding:13px;border:0;border-radius:10px;background:var(--blue);color:#fff;font:700 1rem var(--sans);cursor:pointer;transition:background .15s}
+button.primary:hover{background:var(--blue-d)}
+button.primary[disabled]{opacity:.65;cursor:progress}
+.ghost{width:100%;margin-top:10px;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--text);font:600 .95rem var(--sans);cursor:pointer}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.8rem;margin:18px 0 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.banner{display:none;padding:10px 12px;border-radius:10px;font-size:.9rem;margin-bottom:14px}
+.banner.show{display:block}
+.banner.bad{background:rgba(198,40,40,.1);color:var(--bad)}
+.banner.ok{background:var(--ok-bg);color:var(--ok)}
+.foot{margin:18px 0 0;text-align:center;color:var(--muted);font-size:.9rem}
+
+/* ---------- mobile ---------- */
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .brand{padding:22px 20px;gap:0}
+  .brand h1,.brand p,.mcq{display:none}
+  .side{align-items:flex-start;padding:20px 16px 32px}
+  .card{padding:22px 18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="brand">
+    <div class="logo"><i></i>PrepHub</div>
+    <h1>Practice MCQs the way the exam asks them.</h1>
+    <p>Timed mock tests in English and Urdu, with every wrong answer saved for revision.</p>
+    <div class="mcq" aria-hidden="true">
+      <b>What is the capital of Pakistan?</b>
+      <div class="ur">پاکستان کا دارالحکومت کونسا شہر ہے؟</div>
+      <ul>
+        <li><span>A</span>Lahore</li>
+        <li class="right"><span>B</span>Islamabad</li>
+        <li><span>C</span>Karachi</li>
+        <li><span>D</span>Sialkot</li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="side">
+    <div class="card" id="card" data-mode="login">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <span class="pill"></span>
+        <button role="tab" id="tab-login" aria-selected="true" aria-controls="p-login">Log in</button>
+        <button role="tab" id="tab-signup" aria-selected="false" aria-controls="p-signup">Sign up</button>
+      </div>
+
+      <div class="banner" id="banner" role="status" aria-live="polite"></div>
+
+      <!-- LOGIN -->
+      <section class="panel" id="p-login" role="tabpanel" aria-labelledby="tab-login">
+        <h2>Welcome back</h2>
+        <p class="sub">Log in to continue your practice.</p>
+        <form id="f-login" novalidate>
+          <div class="field">
+            <label for="l-email">Email</label>
+            <input type="email" id="l-email" autocomplete="email" inputmode="email" placeholder="you@example.com">
+            <span class="err" data-for="l-email"></span>
+          </div>
+          <div class="field">
+            <label for="l-pass">Password</label>
+            <div class="inp">
+              <input type="password" id="l-pass" autocomplete="current-password" placeholder="Your password">
+              <button type="button" class="toggle" data-target="l-pass" aria-label="Show password">Show</button>
+            </div>
+            <span class="err" data-for="l-pass"></span>
+          </div>
+          <div class="row">
+            <label><input type="checkbox" id="l-remember"> Keep me logged in</label>
+            <button type="button" class="link" id="forgot">Forgot password?</button>
+          </div>
+          <button class="primary" type="submit">Log in</button>
+        </form>
+        <div class="or">or</div>
+        <button class="ghost" type="button" data-social>Continue with Google</button>
+        <p class="foot">New here? <button class="link" type="button" data-go="signup">Create an account</button></p>
+      </section>
+
+      <!-- SIGNUP -->
+      <section class="panel" id="p-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
+        <h2>Create your account</h2>
+        <p class="sub">Free to start. No card needed.</p>
+        <form id="f-signup" novalidate>
+          <div class="field">
+            <label for="s-name">Full name</label>
+            <input type="text" id="s-name" autocomplete="name" placeholder="Your name">
+            <span class="err" data-for="s-name"></span>
+          </div>
+          <div class="field">
+            <label for="s-email">Email</label>
+            <input type="email" id="s-email" autocomplete="email" inputmode="email" placeholder="you@example.com">
+            <span class="err" data-for="s-email"></span>
+          </div>
+          <div class="field">
+            <label for="s-pass">Password</label>
+            <div class="inp">
+              <input type="password" id="s-pass" autocomplete="new-password" placeholder="At least 8 characters">
+              <button type="button" class="toggle" data-target="s-pass" aria-label="Show password">Show</button>
+            </div>
+            <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+            <div class="hint" id="meter-txt">Use 8+ characters with a number.</div>
+            <span class="err" data-for="s-pass"></span>
+          </div>
+          <div class="field">
+            <label for="s-pass2">Confirm password</label>
+            <input type="password" id="s-pass2" autocomplete="new-password" placeholder="Type it again">
+            <span class="err" data-for="s-pass2"></span>
+          </div>
+          <div class="row">
+            <label><input type="checkbox" id="s-terms"> <span>I agree to the <a class="link" href="#">Terms</a> and <a class="link" href="#">Privacy Policy</a>.</span></label>
+          </div>
+          <span class="err" data-for="s-terms" style="margin:-12px 0 12px"></span>
+          <button class="primary" type="submit">Create account</button>
+        </form>
+        <div class="or">or</div>
+        <button class="ghost" type="button" data-social>Sign up with Google</button>
+        <p class="foot">Already have an account? <button class="link" type="button" data-go="login">Log in</button></p>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============ Convex connection (plain fetch, no library) ============ */
+const CONVEX_URL = "https://unique-kudu-689.convex.cloud"; // dev deployment; change to the production URL when you deploy
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// kind = "query" | "mutation" | "action"
+async function convexCall(kind, path, args = {}) {
+  const res = await fetch(`${CONVEX_URL}/api/${kind}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Convex-Client": "npm-1.16.0" },
+    body: JSON.stringify({ path, args }),
+  });
+  const json = await res.json();
+  if (json.status !== "success") throw new Error(json.errorMessage || "Request failed");
+  return json.value;
+}
+
+function saveSession(token, remember) {
+  localStorage.removeItem("prephub_token"); sessionStorage.removeItem("prephub_token");
+  (remember ? localStorage : sessionStorage).setItem("prephub_token", token);
+}
+async function loginUser({ email, password, remember }) {
+  const r = await convexCall("action", "auth:login", { email, password });
+  if (r.ok) saveSession(r.token, remember);
+  return r;
+}
+async function signupUser({ name, email, password }) {
+  const r = await convexCall("action", "auth:signup", { name, email, password });
+  if (r.ok) saveSession(r.token, true);
+  return r;
+}
+/* ====================================================================== */
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const card = $("#card"), banner = $("#banner");
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function setMode(mode, focus = true) {
+  card.dataset.mode = mode;
+  ["login", "signup"].forEach(m => {
+    const on = m === mode;
+    $("#tab-" + m).setAttribute("aria-selected", on);
+    $("#p-" + m).hidden = !on;
+  });
+  showBanner();
+  history.replaceState(null, "", "#" + mode);
+  document.title = "PrepHub – " + (mode === "login" ? "Log in" : "Create account");
+  if (focus) $(mode === "login" ? "#l-email" : "#s-name").focus();
+}
+$("#tab-login").onclick = () => setMode("login");
+$("#tab-signup").onclick = () => setMode("signup");
+$$("[data-go]").forEach(b => b.onclick = () => setMode(b.dataset.go));
+
+function showBanner(msg, type) {
+  banner.className = "banner" + (msg ? " show " + type : "");
+  banner.textContent = msg || "";
+}
+function setErr(id, msg) {
+  const el = $("#" + id), out = $(`[data-for="${id}"]`);
+  if (out) out.textContent = msg || "";
+  if (el && el.type !== "checkbox") el.setAttribute("aria-invalid", msg ? "true" : "false");
+  return !msg;
+}
+// clear an error as the user fixes the field
+$$("input").forEach(i => i.addEventListener("input", () => setErr(i.id, "")));
+
+// show / hide password
+$$(".toggle").forEach(b => b.onclick = () => {
+  const inp = $("#" + b.dataset.target), show = inp.type === "password";
+  inp.type = show ? "text" : "password";
+  b.textContent = show ? "Hide" : "Show";
+  b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+});
+
+// password strength
+function strength(p) {
+  let s = 0;
+  if (p.length >= 8) s++;
+  if (p.length >= 12) s++;
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+  if (/\d/.test(p)) s++;
+  if (/[^A-Za-z0-9]/.test(p)) s++;
+  return Math.min(s, 4);
+}
+$("#s-pass").addEventListener("input", e => {
+  const s = strength(e.target.value), m = $("#meter");
+  const label = ["Too short", "Weak", "Okay", "Good", "Strong"][e.target.value ? s : 0];
+  m.style.width = (e.target.value ? Math.max(s, 1) * 25 : 0) + "%";
+  m.style.background = ["#c62828", "#c62828", "#e0a82e", "#2e9e5b", "#15803d"][s];
+  $("#meter-txt").textContent = e.target.value ? label : "Use 8+ characters with a number.";
+});
+
+function busy(btn, on, text) {
+  btn.disabled = on;
+  if (on) { btn.dataset.t = btn.textContent; btn.textContent = text; }
+  else btn.textContent = btn.dataset.t || btn.textContent;
+}
+
+// LOGIN submit
+$("#f-login").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("#l-email").value.trim(), password = $("#l-pass").value;
+  const ok = [
+    setErr("l-email", !email ? "Enter your email." : !emailRe.test(email) ? "Enter a valid email address." : ""),
+    setErr("l-pass", !password ? "Enter your password." : "")
+  ].every(Boolean);
+  if (!ok) return $$(".err", e.target).find(x => x.textContent)?.previousElementSibling?.focus?.();
+  const btn = $("button.primary", e.target);
+  busy(btn, true, "Logging in…"); showBanner();
+  try {
+    const r = await loginUser({ email, password, remember: $("#l-remember").checked });
+    r.ok ? showBanner("Logged in. Welcome back, " + r.name + ".", "ok") : showBanner(r.message, "bad");
+  } catch { showBanner("Could not reach the server. Check your internet and try again.", "bad"); }
+  busy(btn, false);
+});
+
+// SIGNUP submit
+$("#f-signup").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("#s-name").value.trim(), email = $("#s-email").value.trim();
+  const pass = $("#s-pass").value, pass2 = $("#s-pass2").value;
+  const ok = [
+    setErr("s-name", name.length < 2 ? "Enter your full name." : ""),
+    setErr("s-email", !email ? "Enter your email." : !emailRe.test(email) ? "Enter a valid email address." : ""),
+    setErr("s-pass", pass.length < 8 ? "Use at least 8 characters." : !/\d/.test(pass) ? "Add at least one number." : ""),
+    setErr("s-pass2", pass2 !== pass ? "Passwords do not match." : ""),
+    setErr("s-terms", $("#s-terms").checked ? "" : "Accept the terms to continue.")
+  ].every(Boolean);
+  if (!ok) return $$(".err", e.target).find(x => x.textContent)?.closest(".field")?.querySelector("input")?.focus();
+  const btn = $("button.primary", e.target);
+  busy(btn, true, "Creating account…"); showBanner();
+  try {
+    const r = await signupUser({ name, email, password: pass });
+    r.ok ? showBanner("Account created. Welcome, " + r.name + ".", "ok") : showBanner(r.message, "bad");
+  } catch { showBanner("Could not reach the server. Check your internet and try again.", "bad"); }
+  busy(btn, false);
+});
+
+$("#forgot").onclick = () => showBanner("Password reset is not connected yet.", "bad");
+$$("[data-social]").forEach(b => b.onclick = () => showBanner("Google sign-in is not connected yet.", "bad"));
+
+setMode(location.hash === "#signup" ? "signup" : "login", false);
+</script>
+</body>
+</html>
